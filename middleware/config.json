@@ -1,0 +1,30 @@
+{
+	 "session": {
+		"enable_timeout": true,
+		"timeout_seconds": 600
+	  },
+    "server": {
+        "port": 28600,
+        "protocol_version": 0
+    },
+    "database": {
+        "host": "10.159.31.40",
+        "user": "root",
+        "password": "888888",
+        "dbname": "video_test",
+        "port": 3306
+    },
+    "logging": {
+        "log_file": "middleware.log",
+        "log_level": "DEBUG"
+    },
+     "data_port": {
+    "enable_timeout": false,
+    "timeout_seconds": 600
+  },
+    "server_info": {
+        "address": "218.76.0.23",
+        "port": 29000
+    }
+}
+

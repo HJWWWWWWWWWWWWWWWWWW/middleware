@@ -1,0 +1,10 @@
+gcc -v -o middleware middleware.c -static \
+    -I/usr/local/mysql/include \
+    -I/usr/local/include/cjson \
+    -L/usr/local/mysql/lib \
+    -L/home/cjson/cJSON/build \
+    -lmysqlclient -lcjson -lpthread -lrt -lz -lm \
+    -lssl -lcrypto -ldl
+
+
+
