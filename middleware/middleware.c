@@ -1423,12 +1423,16 @@ int handle_dclistreq(cJSON *json, MYSQL *conn, char **response, uint32_t *resp_l
     memset(bind_result, 0, sizeof(bind_result));
 
     char dc_name[256];
-    unsigned long dc_name_length;
+    unsigned long dc_name_length = 0;
+    my_bool dc_name_is_null = 0;
+    my_bool dc_name_error = 0;
 
     bind_result[0].buffer_type = MYSQL_TYPE_STRING;
     bind_result[0].buffer = dc_name;
     bind_result[0].buffer_length = sizeof(dc_name);
     bind_result[0].length = &dc_name_length;
+    bind_result[0].is_null = &dc_name_is_null;
+    bind_result[0].error = &dc_name_error;
 
     if (mysql_stmt_bind_result(stmt, bind_result) != 0)
     {
@@ -1461,10 +1465,15 @@ int handle_dclistreq(cJSON *json, MYSQL *conn, char **response, uint32_t *resp_l
             cJSON_AddStringToObject(resp_json, "Ret", "1");
 
             int idx = 1;
-            while (mysql_stmt_fetch(stmt) == 0)
+            int fetch_status;
+            while ((fetch_status = mysql_stmt_fetch(stmt)) == 0 || fetch_status == MYSQL_DATA_TRUNCATED)
             {
-
-                dc_name[dc_name_length] = '\0';
+                if (dc_name_is_null)
+                {
+                    continue;
+                }
+                size_t safe_len = (dc_name_length < sizeof(dc_name)) ? (size_t)dc_name_length : sizeof(dc_name) - 1;
+                dc_name[safe_len] = '\0';
 
                 char key[20];
                 snprintf(key, sizeof(key), "DC%d", idx);
@@ -1573,12 +1582,16 @@ int handle_devlistreq(cJSON *json, MYSQL *conn, char **response, uint32_t *resp_
     memset(bind_result, 0, sizeof(bind_result));
 
     char device_name[256];
-    unsigned long device_name_length;
+    unsigned long device_name_length = 0;
+    my_bool device_name_is_null = 0;
+    my_bool device_name_error = 0;
 
     bind_result[0].buffer_type = MYSQL_TYPE_STRING;
     bind_result[0].buffer = device_name;
     bind_result[0].buffer_length = sizeof(device_name);
     bind_result[0].length = &device_name_length;
+    bind_result[0].is_null = &device_name_is_null;
+    bind_result[0].error = &device_name_error;
 
     if (mysql_stmt_bind_result(stmt, bind_result) != 0)
     {
@@ -1607,9 +1620,15 @@ int handle_devlistreq(cJSON *json, MYSQL *conn, char **response, uint32_t *resp_
         cJSON_AddStringToObject(resp_json, "Ret", "1");
 
         int idx = 1;
-        while (mysql_stmt_fetch(stmt) == 0)
+        int fetch_status;
+        while ((fetch_status = mysql_stmt_fetch(stmt)) == 0 || fetch_status == MYSQL_DATA_TRUNCATED)
         {
-            device_name[device_name_length] = '\0';
+            if (device_name_is_null)
+            {
+                continue;
+            }
+            size_t safe_len = (device_name_length < sizeof(device_name)) ? (size_t)device_name_length : sizeof(device_name) - 1;
+            device_name[safe_len] = '\0';
 
             char key[20];
             snprintf(key, sizeof(key), "Dev%d", idx);
